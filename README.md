@@ -1,10 +1,10 @@
-# Qwen3.8-27B на Strix Point
+# Замеры LLM на Strix Point
 
-Замеры генерации на этой машине. Скорость — токены в секунду по полю llama-server `predicted_per_second`. Рассуждение входит в токены, когда оно включено. Prefill считается отдельно и в таблицы генерации не подмешивается.
+Скорость — токены в секунду по полю llama-server `predicted_per_second`. Рассуждение входит в токены, когда оно включено. Prefill считается отдельно и в таблицы генерации не подмешивается.
 
-Железо: **AMD Ryzen AI 9 HX 370**, **Radeon 890M (gfx1150, RADV)**, 30 ГиБ видимой памяти. Это Strix Point. VRAM 32 ГиБ и GTT 30 ГиБ в драйвере — один физический пул, не сумма. llama.cpp **0.7.0-dev, сборка 11685, коммит 13de11e78**, бэкенд Vulkan. ROCm 7.2 стоит рядом и этими бинарями не используется.
+Железо: **GMKtec EVO-X1**, **AMD Ryzen AI 9 HX 370**, **Radeon 890M (gfx1150, RADV)**. В машине 64 ГиБ: BIOS отдал видеокарте отдельные **32 ГиБ VRAM**, системе остаётся **MemTotal 31 ГиБ**. GTT 30 ГиБ — это окно GPU в системную память, второй пул. llama.cpp **0.7.0-dev, сборка 11685, коммит 13de11e78**, бэкенд Vulkan. ROCm 7.2 стоит рядом и этими бинарями не используется.
 
-Модель: `bartowski/Qwen3.8-27B-GGUF`, квант **Q4_K_M** (17,4 ГБ). Контекст замеров 32768, Flash Attention, все слои на GPU.
+Контекст замеров 32768, Flash Attention, все слои на GPU. Первая модель — `bartowski/Qwen3.8-27B-GGUF`, квант **Q4_K_M** (17,4 ГБ). Позже на той же сборке прогнаны Nemotron Bolt 16GB и Qwen3.6-35B-A3B.
 
 ## Протокол
 
@@ -19,7 +19,7 @@
 
 ## Сводка
 
-Лучший профиль на полном ответе — **DFlash2, глубина 7**: около **16,7 ток/с** против 14,1 у MTP и 5,3 без черновика.
+На полном ответе Qwen3.8-27B лучший профиль — **DFlash2, глубина 7**: около **16,7 ток/с**. На срезе 512 Qwen3.6-35B-A3B Q4_K_M с DFlash2 даёт **42 ток/с** (без черновика 27; IQ4_XS был таким же), Nemotron Bolt 16GB — **14**.
 
 | Дата | Профиль | Бюджет | ток/с | Принятие | Конфиг |
 |---|---|---|---:|---|---|
@@ -34,8 +34,19 @@
 | 10-25 | MTP + ngram | count 1–30, повтор | 40–43 | 91%, шаг ~36 | повтор уже виденного текста |
 | 10-25 | MTP + ngram | срез 512, второй раз подряд | 56 | 100%, шаг 57 | тот же ответ, не новая задача |
 | 10-25 | DFlash2 | count 1–30, первый | 23,5 | 97% | |
+| 10-25 | Nemotron Bolt 16GB, IQ2 | срез 512 | 14,2 | без черновика | [nemotron](configs/llama.cpp/nemotron-35-bolt-16gb.sh) |
+| 10-25 | Qwen3.6-35B-A3B IQ4_XS | срез 512 | 27,0 | в файле нет слоёв MTP | [qwen36](configs/llama.cpp/qwen36-35b-a3b.sh) |
+| 10-25 | Qwen3.6 IQ4_XS + DFlash2 Q8, глубина 7 | срез 512 | **41,0** | 55%, шаг 4,8 | [qwen36-dflash](configs/llama.cpp/qwen36-35b-a3b-dflash2.sh) |
+| 10-25 | Qwen3.6 IQ4_XS + DFlash2 | 2048, всё ещё рассуждение | **50,4** | 71%, шаг 6,0 | тот же |
+| 10-25 | Qwen3.6 IQ4_XS + DFlash2 | count 1–30, первый | 65,7 | 97% | |
+| 10-25 | Qwen3.6 Q4_K_M | срез 512 | 26,9 | слоёв MTP нет и в этом кванте | [qwen36](configs/llama.cpp/qwen36-35b-a3b.sh) |
+| 10-25 | Qwen3.6 Q4_K_M + DFlash2 | срез 512 | **41,9** | 63%, шаг 5,4 | [qwen36-dflash](configs/llama.cpp/qwen36-35b-a3b-dflash2.sh) |
+| 10-25 | Qwen3.6 Q4_K_M + DFlash2 | 2048, всё ещё рассуждение | 46,2 | 71%, шаг 6,0 | тот же |
+| 10-25 | Qwen3.6 Q4_K_M + DFlash2 | count 1–30, первый | 61,4 | 97% | |
 
-Полные таблицы: [results/2026-10-16-spec-decode.md](results/2026-10-16-spec-decode.md), [results/2026-10-25-mtp-ngram.md](results/2026-10-25-mtp-ngram.md).
+Полные таблицы: [results/2026-10-16-spec-decode.md](results/2026-10-16-spec-decode.md), [results/2026-10-25-mtp-ngram.md](results/2026-10-25-mtp-ngram.md), [results/2026-10-25-qwen36-nemotron.md](results/2026-10-25-qwen36-nemotron.md), [results/2026-10-25-context-sweep.md](results/2026-10-25-context-sweep.md).
+
+На длинном контексте 8k–32k Nemotron держит около 14 ток/с на любой задаче. Qwen3.6 Q4 с DFlash2 на счёте даёт 51–57, плотная Qwen3.8 без черновика — около 5. Prefill Nemotron на 31k занимает 142 секунды (221 ток/с), у Qwen3.6 Q4 — 80 секунд (388 ток/с), у Qwen3.8 — 322 секунды (96 ток/с).
 
 ## Как устроены числа
 
@@ -48,7 +59,7 @@
 ## Повтор
 
 ```sh
-configs/llama.cpp/qwen38-27b-dflash2.sh
+configs/llama.cpp/qwen36-35b-a3b-dflash2.sh
 python3 benchmarks/scripts/bench_chat.py \
   --prompt-file benchmarks/prompts/rope-ru.txt \
   --max-tokens 512 --thinking on --effort medium --name rope512

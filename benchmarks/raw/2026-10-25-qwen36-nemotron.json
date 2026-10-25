@@ -1,0 +1,63 @@
+{
+  "session": "2026-10-25",
+  "source": "Same machine and llama.cpp build as the Qwen3.8 sessions. Temperature 0. gen_tok_s is timings.predicted_per_second.",
+  "hardware": {
+    "cpu": "AMD Ryzen AI 9 HX 370",
+    "gpu": "Radeon 890M, gfx1150, RADV",
+    "memtotal_kib": 32451864,
+    "vram_carveout_mib": 32768,
+    "gtt_mib": 30720,
+    "note": "64 GiB physical. BIOS reserves 32 GiB as VRAM; MemTotal is the other half. GTT is the GPU window into system RAM."
+  },
+  "stack": {
+    "engine": "llama.cpp",
+    "version": "0.7.0-dev",
+    "build": 11685,
+    "commit": "13de11e78",
+    "backend": "Vulkan",
+    "context": 32768,
+    "parallel": 1,
+    "flash_attn": true,
+    "gpu_layers": 99,
+    "threads": 16,
+    "env": ["AMD_VULKAN_ICD=RADV", "RADV_PERFTEST=nogttspill", "GGML_VK_VISIBLE_DEVICES=0"]
+  },
+  "models": {
+    "nemotron": {
+      "repo": "anik-jha/Nemotron-3.5-Bolt-74B-A9B-16GB-GGUF",
+      "file": "Nemotron-3.5-Bolt-74B-A9B-16GB-REAP50-IQ2_XXS.gguf",
+      "bytes": 13378655232,
+      "note": "Expert-pruned Bolt. Active experts stay at 9. No draft model."
+    },
+    "qwen": {
+      "repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
+      "file": "Qwen3.6-35B-A3B-UD-IQ4_XS.gguf",
+      "bytes": 17730509792,
+      "note": "UD-Q4_K_M is 20.6 GiB and fits in the 32 GiB VRAM carveout; it was not downloaded for this session. This GGUF has no MTP layers: --spec-type draft-mtp fails at load."
+    },
+    "dflash": {
+      "repo": "aminya/Qwen3.6-35B-A3B-DFlash2-GGUF",
+      "file": "Qwen3.6-35B-A3B-DFlash2-Q8_0.gguf",
+      "bytes": 570468544,
+      "source_weights": "incoai/Qwen3.6-35B-A3B-DFlash2",
+      "spec_draft_n_max": 7,
+      "block_size": 8
+    }
+  },
+  "memory": {
+    "qwen_baseline_vram_gib": 18.19,
+    "qwen_dflash_vram_gib": 19.73,
+    "qwen_dflash_gtt_gib": 0.86
+  },
+  "runs": [
+    {"name": "nemotron-rope512", "thinking": true, "max_tokens": 512, "finish": "length", "prompt_tokens": 86, "completion_tokens": 512, "prompt_tok_s": 53.95, "gen_tok_s": 14.22, "predicted_ms": 35932.773, "wall_s": 37.53, "reasoning_chars": 1376, "content_chars": 0},
+    {"name": "nemotron-rope-nothink", "thinking": false, "max_tokens": 512, "finish": "length", "prompt_tokens": 86, "completion_tokens": 512, "prompt_tok_s": 23.15, "gen_tok_s": 13.89, "predicted_ms": 36800.123, "wall_s": 37.11, "reasoning_chars": 0, "content_chars": 963},
+    {"name": "nemotron-c30", "thinking": false, "max_tokens": 250, "finish": "stop", "prompt_tokens": 31, "completion_tokens": 110, "prompt_tok_s": 35.39, "gen_tok_s": 13.94, "predicted_ms": 7821.695, "wall_s": 8.69, "content_chars": 109},
+    {"name": "qwen-base-rope512", "thinking": true, "max_tokens": 512, "finish": "length", "prompt_tokens": 73, "completion_tokens": 512, "prompt_tok_s": 150.46, "gen_tok_s": 26.98, "predicted_ms": 18941.946, "wall_s": 19.43, "reasoning_chars": 1725, "content_chars": 0},
+    {"name": "qwen-base-c30", "thinking": false, "max_tokens": 250, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 82.0, "gen_tok_s": 27.0, "predicted_ms": 4037.425, "wall_s": 4.42, "content_chars": 109},
+    {"name": "qwen-dflash-rope512", "thinking": true, "max_tokens": 512, "finish": "length", "prompt_tokens": 73, "completion_tokens": 512, "prompt_tok_s": 152.0, "gen_tok_s": 40.97, "predicted_ms": 12472.309, "wall_s": 12.96, "draft_n": 735, "draft_n_accepted": 405, "accept_pct": 55.1, "mean_accept_len": 4.82, "reasoning_chars": 1513, "content_chars": 0},
+    {"name": "qwen-dflash-c30", "thinking": false, "max_tokens": 250, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 95.26, "gen_tok_s": 65.65, "predicted_ms": 1660.386, "wall_s": 2.0, "draft_n": 98, "draft_n_accepted": 95, "accept_pct": 96.9, "mean_accept_len": 7.79, "content_chars": 109},
+    {"name": "qwen-dflash-rope-2048", "thinking": true, "max_tokens": 2048, "finish": "length", "prompt_tokens": 73, "completion_tokens": 2048, "prompt_tok_s": 144.22, "gen_tok_s": 50.41, "predicted_ms": 40607.968, "wall_s": 41.12, "draft_n": 2389, "draft_n_accepted": 1705, "accept_pct": 71.4, "mean_accept_len": 5.99, "reasoning_chars": 4836, "content_chars": 0, "note": "Still inside reasoning when the cap hit. Not a finished answer."},
+    {"name": "qwen-dflash-rope-nothink-1024", "thinking": false, "max_tokens": 1024, "finish": "length", "prompt_tokens": 75, "completion_tokens": 1024, "prompt_tok_s": 37.84, "gen_tok_s": 41.81, "predicted_ms": 24470.054, "wall_s": 24.7, "draft_n": 1442, "draft_n_accepted": 816, "accept_pct": 56.6, "mean_accept_len": 4.94, "content_chars": 2125, "note": "Cap hit before the answer stopped on its own."}
+  ]
+}

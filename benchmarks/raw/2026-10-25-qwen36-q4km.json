@@ -1,0 +1,26 @@
+{
+  "session": "2026-10-25",
+  "source": "Same protocol and machine as 2026-10-25-qwen36-nemotron.json. Temperature 0. gen_tok_s is timings.predicted_per_second.",
+  "model": {
+    "repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
+    "file": "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
+    "bytes": 22134528992,
+    "draft": "aminya/Qwen3.6-35B-A3B-DFlash2-GGUF Qwen3.6-35B-A3B-DFlash2-Q8_0.gguf",
+    "spec_draft_n_max": 7,
+    "block_size": 8,
+    "mtp": "load fails: model doesn't contain MTP layers"
+  },
+  "memory": {
+    "baseline_vram_gib": 22.32,
+    "baseline_gtt_gib": 0.67,
+    "dflash_vram_gib": 23.84,
+    "dflash_gtt_gib": 0.69
+  },
+  "runs": [
+    {"name": "q4-base-rope512", "thinking": true, "max_tokens": 512, "finish": "length", "prompt_tokens": 73, "completion_tokens": 512, "prompt_tok_s": 156.99, "gen_tok_s": 26.87, "predicted_ms": 19020.298, "wall_s": 19.49, "reasoning_chars": 1430, "content_chars": 0},
+    {"name": "q4-base-c30", "thinking": false, "max_tokens": 250, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 84.56, "gen_tok_s": 26.61, "predicted_ms": 4096.096, "wall_s": 4.47, "content_chars": 109},
+    {"name": "q4-dflash-rope512", "thinking": true, "max_tokens": 512, "finish": "length", "prompt_tokens": 73, "completion_tokens": 512, "prompt_tok_s": 144.35, "gen_tok_s": 41.94, "predicted_ms": 12184.973, "wall_s": 12.7, "draft_n": 658, "draft_n_accepted": 416, "accept_pct": 63.2, "mean_accept_len": 5.43, "reasoning_chars": 1489, "content_chars": 0},
+    {"name": "q4-dflash-c30", "thinking": false, "max_tokens": 250, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 95.85, "gen_tok_s": 61.38, "predicted_ms": 1775.849, "wall_s": 2.11, "draft_n": 98, "draft_n_accepted": 95, "accept_pct": 96.9, "mean_accept_len": 7.79, "content_chars": 109},
+    {"name": "q4-dflash-rope2048", "thinking": true, "max_tokens": 2048, "finish": "length", "prompt_tokens": 73, "completion_tokens": 2048, "prompt_tok_s": 165.16, "gen_tok_s": 46.2, "predicted_ms": 44311.834, "wall_s": 44.81, "draft_n": 2394, "draft_n_accepted": 1703, "accept_pct": 71.1, "mean_accept_len": 5.97, "reasoning_chars": 4890, "content_chars": 0, "note": "Still inside reasoning when the cap hit."}
+  ]
+}
