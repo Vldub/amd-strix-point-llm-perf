@@ -1,0 +1,80 @@
+{
+  "session": "2026-10-25",
+  "source": "Same-day A/B. MTP+ngram server first, then a fresh DFlash2 server. Temperature 0. gen_tok_s is timings.predicted_per_second.",
+  "hardware": {
+    "cpu": "AMD Ryzen AI 9 HX 370, 24 threads",
+    "gpu": "AMD Radeon Graphics (RADV GFX1150), deviceID 0x150e, integrated",
+    "mesa": "25.2.8-0ubuntu0.24.04.4",
+    "memory_visible_gib": 30,
+    "rocm_installed": "7.2.0",
+    "rocm_used_by_llama": false
+  },
+  "stack": {
+    "engine": "llama.cpp",
+    "version": "0.7.0-dev",
+    "build": 11685,
+    "commit": "13de11e78",
+    "backend": "Vulkan",
+    "binary": "/home/vlad/opt/llama-b11685/llama-server",
+    "env": ["AMD_VULKAN_ICD=RADV", "RADV_PERFTEST=nogttspill", "GGML_VK_VISIBLE_DEVICES=0"],
+    "context": 32768,
+    "parallel": 1,
+    "flash_attn": true,
+    "gpu_layers": 99,
+    "threads": 16,
+    "model": "/home/vlad/models/Qwen3.8-27B/Qwen3.8-27B-Q4_K_M.gguf"
+  },
+  "arms": {
+    "mtp_ngram": {
+      "spec_type": "draft-mtp,ngram-mod",
+      "spec_draft_n_max": 12,
+      "spec_ngram_mod_n_min": 24,
+      "origin": "https://github.com/KyaniteLabs/qwen38-27b-strix-halo champion flags. Their published numbers are a different machine: Ryzen AI Max+ 395 / Radeon 8060S / gfx1151 / 64 GiB / ROCm, UD-Q4_K_XL, context 96k or 262k. Not comparable as a hardware score."
+    },
+    "dflash2": {
+      "spec_type": "draft-dflash",
+      "draft": "/home/vlad/models/Qwen3.8-27B-DFlash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf",
+      "spec_draft_n_max": 7,
+      "block_size": 8
+    }
+  },
+  "count_to_30": {
+    "prompt_file": "benchmarks/prompts/count-to-30.txt",
+    "temperature": 0,
+    "thinking": false,
+    "max_tokens": 250,
+    "differs_from_kyanite_bench": "Their qwen27-bench.py streams and leaves sampling at the server default. These runs set temperature 0 and disable thinking in the request.",
+    "mtp_ngram": [
+      {"name": "probe", "order": 1, "role": "first exposure of this prompt", "wall_s": 7.35, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 33.51, "prompt_ms": 805.776, "gen_tok_s": 16.69, "predicted_ms": 6532.804, "draft_n_accepted": 99, "draft_n": 120, "accept_pct": 82.5, "mean_accept_len": 10.90},
+      {"name": "c30-1", "order": 2, "role": "repeat, ngram already saw the sequence", "wall_s": 3.10, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 14.34, "gen_tok_s": 40.02, "predicted_ms": 2723.9, "draft_n_accepted": 106, "draft_n": 116, "accept_pct": 91.4, "mean_accept_len": 36.33},
+      {"name": "c30-2", "order": 3, "wall_s": 2.79, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 14.31, "gen_tok_s": 43.39, "predicted_ms": 2512.2, "draft_n_accepted": 106, "draft_n": 116, "accept_pct": 91.4, "mean_accept_len": 36.33},
+      {"name": "c30-3", "order": 4, "wall_s": 2.82, "finish": "stop", "prompt_tokens": 27, "completion_tokens": 110, "prompt_tok_s": 13.10, "gen_tok_s": 43.39, "predicted_ms": 2512.3, "draft_n_accepted": 106, "draft_n": 116, "accept_pct": 91.4, "mean_accept_len": 36.33}
+    ],
+    "dflash2": [
+      {"name": "dflash-c30", "role": "first request after a fresh server", "wall_s": 5.43, "finish": "stop", "completion_tokens": 110, "prompt_tok_s": 34.67, "gen_tok_s": 23.48, "draft_n_accepted": 95, "draft_n": 98, "accept_pct": 96.9, "mean_accept_len": 7.79}
+    ]
+  },
+  "rope_512": {
+    "prompt_file": "benchmarks/prompts/rope-ru.txt",
+    "prompt_tokens": 73,
+    "temperature": 0,
+    "thinking": true,
+    "reasoning_effort": "medium",
+    "max_tokens": 512,
+    "finish": "length",
+    "note": "The cap hit during reasoning, so content tokens are 0. This slice is for draft comparison. End-to-end task time is the 2026-10-16 full answer (~1370 tokens).",
+    "mtp_ngram": [
+      {"name": "rope512-1", "role": "first exposure", "wall_s": 49.40, "prompt_tok_s": 53.18, "gen_tok_s": 10.64, "predicted_n": 512, "predicted_ms": 48027.8, "draft_n_accepted": 437, "draft_n": 882, "accept_pct": 49.5, "mean_accept_len": 6.91, "reasoning_chars": 1034, "content_chars": 0},
+      {"name": "rope512-2", "role": "immediate repeat of the identical generation. ngram replay, not a new answer.", "wall_s": 9.51, "prompt_tok_s": 14.46, "gen_tok_s": 55.99, "predicted_n": 512, "predicted_ms": 9125.9, "draft_n_accepted": 502, "draft_n": 502, "accept_pct": 100.0, "mean_accept_len": 56.78, "reasoning_chars": 1034, "content_chars": 0}
+    ],
+    "dflash2": [
+      {"name": "dflash-rope512", "role": "first rope request on the fresh DFlash2 server", "wall_s": 26.68, "prompt_tok_s": 55.65, "gen_tok_s": 20.22, "predicted_n": 512, "draft_n_accepted": 434, "draft_n": 537, "accept_pct": 80.8, "mean_accept_len": 6.64}
+    ]
+  },
+  "not_measured": [
+    "HIP/ROCm build of llama.cpp. ROCm 7.2 is installed; the llama-server binary is Vulkan-only. cmake was not installed, so the HIP half of the Kyanite recipe was not built.",
+    "Unsloth UD-Q4_K_XL and contexts 96k/262k.",
+    "Kyanite time-per-task battery, quality suite, and rewrite bench.",
+    "Full ~1370-token rope answer on the MTP+ngram arm."
+  ]
+}
